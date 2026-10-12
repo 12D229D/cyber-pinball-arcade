@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER PINBALL ARCADE</title>
+    <!-- Google Fonts para estilo retro-futurista/arcade -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="arcade-cabinet" id="arcadeCabinet">
+        <!-- Cabecera del mueble arcade con marquesina luminosa -->
+        <header class="marquee">
+            <h1 class="neon-text-blue">CYBER <span class="neon-text-pink">PINBALL</span></h1>
+            <div class="marquee-sub">ARCADE EDITION • 2026 RETRO-FUTURISTIC ENGINE</div>
+        </header>
+
+        <!-- Contenedor principal de la pantalla de juego -->
+        <main class="game-container">
+            <!-- Panel izquierdo: Estado de juego y puntuaciones -->
+            <section class="panel panel-left">
+                <div class="display-box score-box">
+                    <div class="label">PUNTOS</div>
+                    <div id="score" class="digital-text">0000000</div>
+                </div>
+                <div class="display-box score-box">
+                    <div class="label">MÁX. PUNTUACIÓN</div>
+                    <div id="high-score" class="digital-text">0000000</div>
+                </div>
+                <div class="display-box stats-box">
+                    <div class="stat-row">
+                        <span class="label">BOLAS:</span>
+                        <span id="balls-left" class="digital-text">3</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="label">MULTIPLICADOR:</span>
+                        <span id="multiplier" class="digital-text">x1</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="label">SALVA-BOLA:</span>
+                        <span id="ball-saver-status" class="digital-text neon-text-blue" style="font-size: 0.9rem;">ACTIVO</span>
+                    </div>
+                </div>
+                <div class="controls-guide">
+                    <h3>CONTROLES</h3>
+                    <div class="control-key-row">
+                        <kbd>A</kbd> o <kbd>←</kbd> <span>Pala Izq.</span>
+                    </div>
+                    <div class="control-key-row">
+                        <kbd>D</kbd> o <kbd>→</kbd> <span>Pala Der.</span>
+                    </div>
+                    <div class="control-key-row">
+                        <kbd>Espacio</kbd> (Mantener) <span>Lanzador</span>
+                    </div>
+                    <div class="control-key-row">
+                        <kbd>N</kbd> / <kbd>Shift</kbd> <span>Sacudir (Tilt)</span>
+                    </div>
+                    <div class="control-key-row">
+                        <kbd>P</kbd> <span>Pausar</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel central: Área de juego Canvas -->
+            <section class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="pinballCanvas" width="500" height="800"></canvas>
+                
+                <!-- Superposiciones en pantalla (Screens) -->
+                <div id="start-screen" class="overlay-screen">
+                    <h2 class="neon-text-pink">INSERTE CRÉDITO</h2>
+                    <p class="blink">PULSA ESPACIO O CUALQUIER TECLA</p>
+                    <button id="btn-insert-coin-overlay" class="btn btn-neon-blue" style="margin-top: 15px;">INSERTAR MONEDA (25¢)</button>
+                </div>
+
+                <div id="pause-screen" class="overlay-screen hidden">
+                    <h2 class="neon-text-blue">PAUSA</h2>
+                    <p>PULSA 'P' PARA REANUDAR</p>
+                </div>
+
+                <div id="gameover-screen" class="overlay-screen hidden">
+                    <h2 class="neon-text-pink">GAME OVER</h2>
+                    <p class="final-score-text">PUNTUACIÓN FINAL: <span id="final-score">0</span></p>
+                    <p class="blink">PULSA ESPACIO PARA REINICIAR</p>
+                </div>
+
+                <div id="tilt-screen" class="overlay-screen hidden" style="background: rgba(255, 0, 80, 0.85);">
+                    <h2 class="neon-text-pink" style="color: #ff0055; text-shadow: 0 0 20px #ff0055;">¡¡ TILT !!</h2>
+                    <p style="color: #fff;">SISTEMA BLOQUEADO POR SACUDIDA</p>
+                </div>
+
+                <!-- Controles táctiles en pantalla para móviles -->
+                <div class="mobile-touch-controls" id="touchControls">
+                    <button id="touch-left-flipper" class="touch-btn touch-btn-left" aria-label="Pala Izquierda">PALA IZQ</button>
+                    <button id="touch-nudge" class="touch-btn touch-btn-nudge" aria-label="Sacudir Mesa">TILT</button>
+                    <button id="touch-plunger" class="touch-btn touch-btn-plunger" aria-label="Lanzar Bola">LANZAR</button>
+                    <button id="touch-right-flipper" class="touch-btn touch-btn-right" aria-label="Pala Derecha">PALA DER</button>
+                </div>
+            </section>
+
+            <!-- Panel derecho: Logros e historial de golpes en vivo -->
+            <section class="panel panel-right">
+                <div class="display-box log-box">
+                    <div class="label">CONSOLA DE EVENTOS</div>
+                    <div id="event-log" class="log-content">
+                        <div class="log-entry system">> SISTEMA INICIADO...</div>
+                        <div class="log-entry system">> LISTO PARA EL JUEGO</div>
+                    </div>
+                </div>
+                <div class="control-buttons">
+                    <button id="btn-sound" class="btn btn-neon-blue">SONIDO: ON</button>
+                    <button id="btn-restart" class="btn btn-neon-pink">REINICIAR</button>
+                </div>
+                <div class="decor-panel">
+                    <div class="neon-line"></div>
+                    <div class="grid-effect"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Panel inferior del mueble arcade -->
+        <footer class="arcade-bottom">
+            <div class="coin-slots">
+                <div class="coin-slot" id="coin-slot-1" title="Haz clic para insertar moneda" role="button" tabindex="0">
+                    <div class="light"></div>
+                    <div class="label">25¢ INSERT COIN</div>
+                </div>
+                <div class="coin-slot" id="coin-slot-2" title="Haz clic para insertar moneda" role="button" tabindex="0">
+                    <div class="light"></div>
+                    <div class="label">25¢ INSERT COIN</div>
+                </div>
+            </div>
+            <div class="credits">© 2026 CYBER ARCADE • CODEX MONOREPO</div>
+        </footer>
+    </div>
+
+    <!-- Cargar script del juego -->
+    <script src="script.js"></script>
+</body>
+</html>
